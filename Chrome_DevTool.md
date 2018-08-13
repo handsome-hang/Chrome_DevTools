@@ -126,19 +126,25 @@ Demo测试： [https://googlechrome.github.io/devtools-samples/jank/](https://go
 1、先对移动方块进行添加，添加至页面进行卡顿，因为每台机器的性能不同，添加至一定数目之后才会造成卡顿
 ![image](png1.png)  
 2、打开开发者工具进行performance的记录得到分析数据的展示情况。  
-![image](png2.png)  
-	1）数据展示主要的花费事件在于Rendering  
-	![image](png3.png)  
-	2) fps显示红色提醒，卡顿，缩放至细节查看    
-	![image](png4.png)  
-	![image](png5.png)  
-	3)点击有红色三角的Recalculate Style的调用栈。       
-	发现有提示可能发生回流情况，点击reveal查看详细信息。    
-	![image](png6.png)      
-	进入代码查看在app.js的70行代码发生了回流情况。      
-	![image](png7.png)   
-	发现在其中多次访问了offsetTop的属性，造成了回流问题。       
-	![image](png8.png)      
+![image](png2.png)      
+
+1) 数据展示主要的花费事件在于Rendering  
+![image](png3.png)      
+
+2) fps显示红色提醒，卡顿，缩放至细节查看    
+![image](png4.png)  
+![image](png5.png)  
+
+3) 点击有红色三角的Recalculate Style的调用栈。       
+    发现有提示可能发生回流情况，点击reveal查看详细信息。    
+    ![image](png6.png)      
+    
+    进入代码查看在app.js的70行代码发生了回流情况。      
+    ![image](png7.png)      
+    
+    发现在其中多次访问了offsetTop的属性，造成了回流问题。       
+    ![image](png8.png)      
+	
 3、在采用另外一种优化性能方式查看代码（获取样式top缓存处理不多次访问），发现页面流畅了很多。        
 ![image](png9.png)  
 
@@ -146,24 +152,32 @@ Demo测试： [https://googlechrome.github.io/devtools-samples/jank/](https://go
 **Chrome Memory：** 主要是用于深度性能分析，提供记录场景运行、记录堆快照、记录堆分配等三个功能实现对渲染性能和内存泄漏的分析定位。
 
 **快照的方式**
-Demo测试： [https://googlechrome.github.io/devtools-samples/jank/](https://googlechrome.github.io/devtools-samples/jank/)
+Demo测试： [https://handsome-hang.github.io/test/chrome/](https://handsome-hang.github.io/test/chrome/)
 目前采用比较多的方式是是使用快照对比来完成，如图：  
     
 1、首先在初始化页面进行一次快照处理记录初始化状态。（基本参照）     
 ![image](memory_png1.png)  
+
 2、然后进行点击添加按钮进行widget的创建添加。   
 ![image](memory_png2.png)  
+
 3、接着进行删除操作对widget进行了移除处理，进行一次快照获取。   
 ![image](memory_png3.png)   
+
 4、然后反复先前操作进行快照记录处理。       
 ![image](memory_png4.png)   
+
 可以发现内存在一次次操作后得到的快照内存大小不断的在增长，这个时候就可以判断出应该是有内存泄漏没有被回收。  
 ![image](memory_png6.png)   
+
 5、将获取的快照进行对比处理。   
 ![image](memory_png5.png)   
+
 6、对引用类型（以Detached DOM 为例子）进行分析查看， #Delta是否有不断增加，如果有则是有异常内存泄漏。        
 ![image](memory_png7.png)       
+
 7、查看详细增长内容有属性被哪些地方引用而导致没有办法回收，发现widget的一些信息没有被回收而一直存在。     
+
 ![image](memory_png8.png)       
 8、通过删除操作找到对应的代码，来查看widget被移除操作中间发生了什么而导致widget内容没有被回收，发现index.html代码中有问题。 
 ```
